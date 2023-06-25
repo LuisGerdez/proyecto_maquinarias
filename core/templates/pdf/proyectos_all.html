@@ -1,0 +1,141 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Reporte de proyectos</title>
+        <style>
+            @page {
+                size: letter;
+                @frame header_frame {           /* Static Frame */
+                    -pdf-frame-content: header_content;
+                    left: 50pt; width: 512pt; top: 20pt; height: 20pt;
+                }
+                @frame content_frame {          /* Content Frame */
+                    left: 45pt; width: 518pt; top: 32pt; height: 732pt;
+                }
+                @frame footer_frame {           /* Another static Frame */
+                    -pdf-frame-content: footer_content;
+                    left: 50pt; width: 512pt; top: 800pt; height: 20pt;
+                }
+            }
+
+            p {
+                font-size: 12px;
+                text-align: justify;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            li { font-size: 12px; }
+
+            table {
+                width: 100%;
+            }
+
+            table, td, th {
+                text-align: center;
+                padding: 1px;
+                border: 1px solid black;
+                font-size: 12px;
+            }
+            
+            table td, table td * {
+                vertical-align: top;
+            }
+
+            th {
+                background-color: #b3ecff;
+            }
+        </style>
+	</head>
+
+	<body>
+        <div id="header_content">Fecha: {% now "d/m/Y" %}</div>
+
+        {% for proyecto in proyectos %}
+
+            <table style="border-collapse: collapse; border: none;">
+                <tr>
+                    <td style="border: none; text-align: left; width: 240px;">
+                        <img src="{{ host }}{% static 'core/img/company-banner.png'%}" width="320px" height="60px"/>
+                    </td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 110px;">RIF: J-30950158-5</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 280px;">{{ user.get_short_name|default:"---" }}</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 60px;">SIGEMPET</td>
+                </tr>
+            </table>
+
+            <h1 style="text-align: center;">REPORTE DE PROYECTO</h1>
+
+            <h1 style="text-align: left; margin-top: 8px; margin-bottom: 1px;">Detalles de proyecto</h1>
+
+            <table border="1">
+                <tr>
+                    <th colspan="2" style="text-align: center; font-weight: bold;">Nombre de proyecto</th>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: left;">
+                        {{ proyecto.nombre }}
+                    </td>
+                </tr>
+            </table>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Estado</th>
+                    <th style="text-align: center; font-weight: bold;">Fecha de inicio</th>
+                    <th style="text-align: center; font-weight: bold;">Fecha de finalización</th>
+                </tr>
+
+                <tr>
+                    <td style="text-align: left;">{{ proyecto.get_estado }}</td>
+                    <td style="text-align: left;">{{ proyecto.fecha_inicio }}</td>
+                    <td style="text-align: left;">{{ proyecto.fecha_finalizacion }}</td>
+                </tr>
+            </table>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Descripción</th>
+                    <th style="text-align: center; font-weight: bold;">Lugar</th>
+                </tr>
+
+                <tr>
+                    <td style="text-align: left;">{{ proyecto.get_description_wrapped|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ proyecto.get_lugar_wrapped|default:"N/A" }}</td>
+                </tr>
+            </table>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Maquinarias</th>
+                </tr>
+
+                {% for maquinaria in proyecto.maquinarias.all %}
+                    <tr>
+                        <td style="text-align: left;"><b>{{ forloop.counter }}</b>.- {{ maquinaria.get_maquinaria_display }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Chóferes</th>
+                </tr>
+
+                {% for chofer in proyecto.choferes.all %}
+                    <tr>
+                        <td style="text-align: left;"><b>{{ forloop.counter }}</b>.- {{ chofer.get_full_name }} - {{ chofer.cedula }}</td>
+                    </tr>
+                {% endfor %}
+                
+            </table>
+
+            <div> 
+                <pdf:nextpage /> 
+            </div>
+
+        {% endfor %}
+	</body>
+</html>

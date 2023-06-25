@@ -1,0 +1,151 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Reporte de mantenimientos</title>
+        <style>
+            @page {
+                size: letter;
+                @frame header_frame {           /* Static Frame */
+                    -pdf-frame-content: header_content;
+                    left: 50pt; width: 512pt; top: 20pt; height: 20pt;
+                }
+                @frame content_frame {          /* Content Frame */
+                    left: 45pt; width: 518pt; top: 32pt; height: 732pt;
+                }
+                @frame footer_frame {           /* Another static Frame */
+                    -pdf-frame-content: footer_content;
+                    left: 50pt; width: 512pt; top: 800pt; height: 20pt;
+                }
+            }
+
+            p {
+                font-size: 12px;
+                text-align: justify;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            table, td, th {
+                text-align: center;
+                padding: 1px;
+                border: 1px solid black;
+                font-size: 12px;
+            }
+            
+            table td, table td * {
+                vertical-align: top;
+            }
+
+            th {
+                background-color: #b3ecff;
+            }
+        </style>
+	</head>
+
+	<body>
+        <div id="header_content">Fecha: {% now "d/m/Y" %}</div>
+
+        {% for mantenimiento in mantenimientos %}
+            <table style="border-collapse: collapse; border: none;">
+                <tr>
+                    <td style="border: none; text-align: left; width: 240px;">
+                        <img src="{{ host }}{% static 'core/img/company-banner.png'%}" width="320px" height="60px"/>
+                    </td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 110px;">RIF: J-30950158-5</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 280px;">{{ user.get_short_name|default:"---" }}</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 60px;">SIGEMPET</td>
+                </tr>
+            </table>
+
+            <h1 style="text-align: center;">REPORTE DE MANTENIMIENTOS</h1>
+
+            <h1 style="text-align: left; margin-top: 8px; margin-bottom: 1px;">Información de maquinaria</h1>
+            <p>{{ mantenimiento.maquinaria.get_maquinaria_display }}</p>
+
+            <h1 style="text-align: left; margin-top: 8px; margin-bottom: 1px;">Información de mantenimiento</h1>
+
+            <p>
+                <b>Tipo de mantenimiento</b>: {{ mantenimiento.get_tipo_mantenimiento }}
+                --
+                <b>Estado</b>: {{ mantenimiento.get_estado }}
+            </p>
+            <p>
+                <b>Fecha</b>: {{ mantenimiento.fecha }}
+            </p>
+            <p><b>Actividad</b>: {{ mantenimiento.actividad }}</p>
+            <p><b>Descripción</b>: {{ mantenimiento.get_description_wrapped }}</p>
+            <p><b>Herramientas</b>: {{ mantenimiento.get_herramientas_wrapped }}</p>
+
+            {% if mantenimiento.get_gastos_format %}
+                <p><b>Repuestos y gastos</b>:</p>
+
+                <table border="1">
+                    <tr>
+                        <th style="text-align: center; font-weight: bold; width: 40px;">#</th>
+                        <th style="text-align: center; font-weight: bold;">Descripción</th>
+                        <th style="text-align: center; font-weight: bold; width: 100px;">Monto $</th>
+                    </tr>
+                    {% for obj in mantenimiento.get_gastos_format %}
+                        <tr>
+                            <td style="text-align: center;">{{ forloop.counter }}</td>
+                            <td style="text-align: justify;">{{ obj.descripcion }}</td>
+                            <td style="text-align: left;">{{ obj.monto }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2" style="text-align: left;background-color: lightgray"><b>MONTO TOTAL</b>:</td>
+                        <td style="text-align: left;background-color: lightgray">{{ mantenimiento.get_gastos_total }}</td>
+                    </tr>
+                </table>
+            {% else %}
+                <p><b>Repuestos y gastos</b>: No hay gastos registrados</p>
+            {% endif %}
+
+            <h1 style="text-align: left; margin-top: 8px; margin-bottom: 1px;">Información de personal</h1>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold; width: 90px;">Cédula</th>
+                    <th style="text-align: center; font-weight: bold;">Nombre</th>
+                    <th style="text-align: center; font-weight: bold; width: 180px;">Cargo</th>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">{{ mantenimiento.supervisor.cedula }}</td>
+                    <td style="text-align: justify;">{{ mantenimiento.supervisor.get_full_name }}</td>
+                    <td style="text-align: left;">{{ mantenimiento.supervisor.get_cargo }}</td>
+                </tr>
+
+                {% if mantenimiento.mecanicos.all %}
+                    {% for mecanico in mantenimiento.mecanicos.all %}
+                    <tr>
+                        <td style="text-align: center;">{{ mecanico.cedula }}</td>
+                        <td style="text-align: justify;">{{ mecanico.get_full_name }}</td>
+                        <td style="text-align: left;">{{ mecanico.get_cargo }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+
+                {% if mantenimiento.ayudantes.all %}
+                    {% for ayudante in mantenimiento.ayudantes.all %}
+                    <tr>
+                        <td style="text-align: center;">{{ ayudante.cedula }}</td>
+                        <td style="text-align: justify;">{{ ayudante.get_full_name }}</td>
+                        <td style="text-align: left;">{{ ayudante.get_cargo }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+
+            <div> 
+                <pdf:nextpage /> 
+            </div>
+
+        {% endfor %}
+	</body>
+</html>

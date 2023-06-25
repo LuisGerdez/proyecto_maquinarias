@@ -1,0 +1,545 @@
+{% extends "core/layout.html" %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Alquileres</h1>
+        <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+              <li class="breadcrumb-item active">Alquileres</li>
+            </ol>
+        </nav>
+    </div>
+
+    <input type="hidden" id="alquileres_selected_id" value="">
+
+    <div class="card">
+        <div class="card-body">
+        	<h5 class="card-title">Alquileres</h5>
+
+            <div class="btn-group btn-group-sm mb-3" role="group">
+                <button type="button" class="btn btn-warning" id="alquileres_btn_filtro_sin_culminar">Sin culminar</button>
+                <button type="button" class="btn btn-success" id="alquileres_btn_filtro_ejecutados">Ejecutados</button>
+                <button type="button" class="btn btn-danger" id="alquileres_btn_filtro_cancelados">Cancelados</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered display compact nowrap" id="tabla_alquileres" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Actividad</th>
+                            <th>Fecha de salida</th>
+                            <th>Fecha de retorno</th>
+                            <th>Monto</th>
+                            <th>Cancelado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar alquiler Modal Step 1 -->
+    <div class="modal fade show" id="agregarAlquilerModal_Step_1" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Registrar alquiler - Información (1/4)</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Actividad a realizar</label>
+                            <input type="text" class="form-control input-agregar" id="alquiler_agregar_actividad">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de salida</label>
+                            <input type="datetime-local" class="form-control input-agregar" id="alquiler_agregar_fecha_salida">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de retorno</label>
+                            <input type="datetime-local" class="form-control input-agregar" id="alquiler_agregar_fecha_retorno">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Cliente</label>
+                            <select class="form-control input-agregar" id="alquiler_agregar_cliente" data-live-search="true">
+                            </select>
+                        </div>
+                    </div>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+                    <button type="button" class="btn btn-success" id="btn_alquiler_agregar_step_2">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Agregar alquiler Modal Step 2 -->
+    <div class="modal fade show" id="agregarAlquilerModal_Step_2" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar alquiler - Maquinarias (2/4)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12" style="margin-bottom: 350px">
+                            <label class="form-label">Maquinarias disponibles</label>
+                            <select class="form-control" id="alquiler_agregar_maquinarias" data-none-selected-text="Seleccionar maquinarias" data-live-search="true" multiple></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_agregar_step_1_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-success" id="btn_alquiler_agregar_step_3">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar alquiler Modal Step 3 -->
+    <div class="modal fade show" id="agregarAlquilerModal_Step_3" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar alquiler - Chóferes (3/4)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12" style="margin-bottom: 350px">
+                            <label class="form-label">Chóferes disponibles</label>
+                            <select class="form-control" id="alquiler_agregar_choferes" data-none-selected-text="Seleccionar chóferes" data-live-search="true" multiple></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_agregar_step_2_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-success" id="btn_alquiler_agregar_step_4">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar alquiler Modal Step 4 -->
+    <div class="modal fade show" id="agregarAlquilerModal_Step_4" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar alquiler - Monto (4/4)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Monto</label>
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control input-agregar" id="alquiler_agregar_monto" value="0">
+                                <span class="input-group-text">$</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_agregar_step_3_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-success" id="btn_alquiler_agregar">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles alquiler Modal-->
+    <div class="modal fade show" id="detallesAlquilerModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de alquiler</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Actividad a realizar</label>
+                            <input type="text" class="form-control" id="alquiler_detalles_actividad" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de salida</label>
+                            <input type="text" class="form-control" id="alquiler_detalles_fecha_salida" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de retorno</label>
+                            <input type="text" class="form-control" id="alquiler_detalles_fecha_retorno" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-control" id="alquiler_detalles_cliente" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Monto</label>
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control" id="alquiler_detalles_monto" readonly>
+                                <span class="input-group-text">$</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Maquinarias</label>
+                            <ol class="list-group list-group-numbered" id="alquiler_detalles_maquinarias">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Subheading</div>
+                                        Cras justo odio
+                                    </div>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Subheading</div>
+                                        Cras justo odio
+                                    </div>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Subheading</div>
+                                        Cras justo odio
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Chóferes</label>
+                            <ol class="list-group list-group-numbered" id="alquiler_detalles_choferes">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Subheading</div>
+                                        Cras justo odio
+                                    </div>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Subheading</div>
+                                        Cras justo odio
+                                    </div>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Subheading</div>
+                                        Cras justo odio
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="col-md-12" id="alquiler_culminado_nota_container">
+                            <label class="form-label">Nota de culminación</label>
+                            <div class="col-sm-12">
+                                <textarea class="form-control" id="alquiler_detalles_culminado_nota" rows="3" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar alquiler Modal Step 1 -->
+    <div class="modal fade show" id="modificarAlquilerModal_Step_1" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar alquiler - Información (1/3)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" class="input-modificar" id="alquiler_modificar_maquinarias_id">
+                    <input type="hidden" class="input-modificar" id="alquiler_modificar_choferes_id">
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Actividad a realizar</label>
+                            <input type="text" class="form-control input-modificar" id="alquiler_modificar_actividad">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de salida</label>
+                            <input type="datetime-local" class="form-control input-modificar" id="alquiler_modificar_fecha_salida">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de retorno</label>
+                            <input type="datetime-local" class="form-control input-modificar" id="alquiler_modificar_fecha_retorno">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Cliente</label>
+                            <select class="form-control input-modificar" id="alquiler_modificar_cliente" data-live-search="true"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Monto</label>
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control input-modificar" id="alquiler_modificar_monto">
+                                <span class="input-group-text">$</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn_alquiler_modificar_step_2">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar alquiler Modal Step 2 -->
+    <div class="modal fade show" id="modificarAlquilerModal_Step_2" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar alquiler - Maquinarias (2/3)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12" style="margin-bottom: 350px">
+                            <label class="form-label">Maquinarias disponibles</label>
+                            <select class="form-control" id="alquiler_modificar_maquinarias" data-none-selected-text="Seleccionar maquinarias" data-live-search="true" multiple></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_modificar_step_1_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn_alquiler_modificar_step_3">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar alquiler Modal Step 3 -->
+    <div class="modal fade show" id="modificarAlquilerModal_Step_3" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar alquiler - Chóferes (3/3)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12" style="margin-bottom: 350px">
+                            <label class="form-label">Chóferes disponibles</label>
+                            <select class="form-control" id="alquiler_modificar_choferes" data-none-selected-text="Seleccionar chóferes" data-live-search="true" multiple></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_modificar_step_2_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn_alquiler_modificar">
+                        <i class="bi bi-pencil"></i> Modificar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Establecer alquiler culminado Modal-->
+    <div class="modal fade show" id="establecerAlquilerCulminadoModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Establecer alquiler como culminado</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <input type="hidden" id="alquiler_establecer_culminado_id">
+    				¿Desea establecer este alquiler como culminado?
+
+                    <div class="col-md-12 mt-3">
+                        <textarea class="form-control" placeholder="Nota de culminación" id="alquiler_establecer_culminado_nota" rows="3"></textarea>
+                    </div>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-warning" id="btn_alquiler_establecer_culminado">
+    					<i class="bi bi-bookmark-check-fill"></i>  Establecer como culminado
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Cancelar alquiler Modal-->
+    <div class="modal fade show" id="cancelarAlquilerModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Cancelar alquiler</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <input type="hidden" id="alquiler_cancelar_id">
+    				¿Desea cancelar este alquiler?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_alquiler_cancelar">
+    					<i class="bi bi-clipboard-x"></i> Cancelar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Eliminar alquiler Modal-->
+    <div class="modal fade show" id="eliminarAlquilerModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Eliminar alquiler</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea eliminar este alquiler?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_alquiler_eliminar">
+    					<i class="bi bi-x-circle"></i> Eliminar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Reporte alquiler Modal-->
+    <div class="modal fade show" id="reporteAlquilerModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de alquiler</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Qué reporte desea generar?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_alquiler_reporte_all">
+    					<i class="bi bi-bar-chart-line"></i> Todos los alquileres
+    				</button>
+                    <button type="button" class="btn btn-success" id="btn_alquiler_reporte_culminados">
+    					<i class="bi bi-check"></i> Ejecutados
+    				</button>
+                    <button type="button" class="btn btn-warning" id="btn_alquiler_reporte_sinculminar">
+    					<i class="bi bi-hourglass-bottom"></i> Sin culminar
+    				</button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_reporte_cancelados">
+    					<i class="bi bi-clipboard-x"></i> Cancelados
+    				</button>
+    				<button type="button" class="btn btn-info" id="btn_alquiler_reporte_single">
+    					<i class="bi bi-box-arrow-in-down"></i> Alquiler seleccionado
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Reporte alquiler all Modal-->
+    <div class="modal fade show" id="reporteAlquilerAllModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de alquiler</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea generar un reporte de todos los alquileres?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_alquiler_reporte_all_2">
+    					<i class="bi bi-bar-chart-line"></i> Todos los alquileres
+    				</button>
+                    <button type="button" class="btn btn-success" id="btn_alquiler_reporte_culminados_2">
+    					<i class="bi bi-check"></i> Ejecutados
+    				</button>
+                    <button type="button" class="btn btn-warning" id="btn_alquiler_reporte_sinculminar_2">
+    					<i class="bi bi-hourglass-bottom"></i> Sin culminar
+    				</button>
+                    <button type="button" class="btn btn-danger" id="btn_alquiler_reporte_cancelados_2">
+    					<i class="bi bi-clipboard-x"></i> Cancelados
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+{% endblock %}

@@ -1,0 +1,335 @@
+{% extends "core/layout.html" %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Trabajadores</h1>
+        <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+              <li class="breadcrumb-item active">Trabajadores</li>
+            </ol>
+        </nav>
+    </div>
+
+    <input type="hidden" id="trabajadores_selected_id" value="">
+
+    <div class="card">
+        <div class="card-body">
+        	<h5 class="card-title">Trabajadores</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered display compact nowrap" id="tabla_trabajadores" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cédula</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Teléfono</th>
+                            <th>Cargo</th>
+                            <th>Deshabilitado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar trabajador Modal-->
+    <div class="modal fade show" id="agregarTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" id="form_trabajador_agregar">
+                        <div class="col-md-12">
+                            <label class="form-label">Cédula de identidad</label>
+                            <input type="number" class="form-control" name="cedula" id="trabajador_agregar_cedula" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer nombre</label>
+                            <input type="text" class="form-control" name="first_name" id="trabajador_agregar_primer_nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo nombre</label>
+                            <input type="text" class="form-control" name="middle_name" id="trabajador_agregar_segundo_nombre">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer apellido</label>
+                            <input type="text" class="form-control" name="last_name" id="trabajador_agregar_primer_apellido" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo apellido</label>
+                            <input type="text" class="form-control" name="last_name_2" id="trabajador_agregar_segundo_apellido">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Número de teléfono</label>
+                            <input type="number" class="form-control" name="num_tlf" id="trabajador_agregar_num_tlf">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cargo</label>
+                            <select class="form-select" name="cargo" id="trabajador_agregar_cargo" required>
+                                <option value="" selected="">Seleccionar cargo</option>
+                                <option value="1">Chófer</option>
+                                <option value="2">Mecánico</option>
+                                <option value="3">Ayudante de mecánico</option>
+                                <option value="4">Supervisor de mantenimiento</option>
+                            </select>
+                        </div>
+
+                        <input type="submit" id="submit_trabajador_agregar" class="d-none"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <label for="submit_trabajador_agregar" class="btn btn-success" tabindex="0">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles trabajador Modal-->
+    <div class="modal fade show" id="detallesTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Cédula de identidad</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_cedula" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer nombre</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_primer_nombre" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo nombre</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_segundo_nombre" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer apellido</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_primer_apellido" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo apellido</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_segundo_apellido" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Número de teléfono</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_num_tlf" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cargo</label>
+                            <input type="text" class="form-control" id="trabajador_detalles_cargo" readonly>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar trabajador Modal-->
+    <div class="modal fade show" id="modificarTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" id="form_trabajador_modificar">
+                        <div class="col-md-12">
+                            <label class="form-label">Cédula de identidad</label>
+                            <input type="text" class="form-control" id="trabajador_modificar_cedula" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer nombre</label>
+                            <input type="text" class="form-control" name="first_name" id="trabajador_modificar_primer_nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo nombre</label>
+                            <input type="text" class="form-control" name="middle_name" id="trabajador_modificar_segundo_nombre">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer apellido</label>
+                            <input type="text" class="form-control" name="last_name" id="trabajador_modificar_primer_apellido" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo apellido</label>
+                            <input type="text" class="form-control" name="last_name_2" id="trabajador_modificar_segundo_apellido">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Número de teléfono</label>
+                            <input type="number" class="form-control" name="num_tlf" id="trabajador_modificar_num_tlf">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cargo</label>
+                            <select class="form-select" name="cargo" id="trabajador_modificar_cargo" required>
+                                <option value="" selected="">Seleccionar cargo</option>
+                                <option value="1">Chófer</option>
+                                <option value="2">Mecánico</option>
+                                <option value="3">Ayudante de mecánico</option>
+                                <option value="4">Supervisor de mantenimiento</option>
+                            </select>
+                        </div>
+
+                        <input type="submit" id="submit_trabajador_modificar" class="d-none"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <label for="submit_trabajador_modificar" class="btn btn-warning" tabindex="0">
+                        <i class="bi bi-pencil"></i> Modificar
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eliminar trabajador Modal-->
+    <div class="modal fade show" id="eliminarTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea eliminar este trabajador?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_trabajador_eliminar">
+                        <i class="bi bi-x-circle"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deshabilitar trabajador Modal-->
+    <div class="modal fade show" id="deshabilitarTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Deshabilitar trabajador</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea deshabilitar este trabajador?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_trabajador_deshabilitar">
+    					<i class="bi bi-x-octagon"></i> Deshabilitar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Habilitar trabajador Modal-->
+    <div class="modal fade show" id="habilitarTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Habilitar trabajador</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea habilitar este trabajador?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-success" id="btn_trabajador_habilitar">
+    					<i class="bi bi-patch-check"></i> Habilitar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Reporte trabajador Modal-->
+    <div class="modal fade show" id="reporteTrabajadorModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de trabajador</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Qué reporte desea generar?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_trabajador_reporte_all">
+    					<i class="bi bi-bar-chart-line"></i> Todos los trabajadores
+    				</button>
+    				<button type="button" class="btn btn-info" id="btn_trabajador_reporte_single">
+    					<i class="bi bi-box-arrow-in-down"></i> Trabajador seleccionado
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Reporte trabajador all Modal-->
+    <div class="modal fade show" id="reporteTrabajadorAllModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de trabajador</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea generar un reporte de todos los trabajadores?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_trabajador_reporte_all_2">
+    					<i class="bi bi-bar-chart-line"></i> Todos los trabajadores
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+{% endblock %}

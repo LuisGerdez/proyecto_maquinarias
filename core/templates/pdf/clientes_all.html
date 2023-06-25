@@ -1,0 +1,118 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Reporte de cliente</title>
+        <style>
+            @page {
+                size: letter;
+                @frame header_frame {           /* Static Frame */
+                    -pdf-frame-content: header_content;
+                    left: 50pt; width: 512pt; top: 20pt; height: 20pt;
+                }
+                @frame content_frame {          /* Content Frame */
+                    left: 45pt; width: 518pt; top: 32pt; height: 732pt;
+                }
+                @frame footer_frame {           /* Another static Frame */
+                    -pdf-frame-content: footer_content;
+                    left: 50pt; width: 512pt; top: 800pt; height: 20pt;
+                }
+            }
+
+            p {
+                font-size: 12px;
+                text-align: justify;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            table, td, th {
+                text-align: center;
+                padding: 1px;
+                border: 1px solid black;
+                font-size: 12px;
+            }
+            
+            table td, table td * {
+                vertical-align: top;
+            }
+
+            th {
+                background-color: #b3ecff;
+            }
+        </style>
+	</head>
+
+	<body>
+        <div id="header_content">Fecha: {% now "d/m/Y" %}</div>
+
+        {% for cliente in clientes %}
+            <table style="border-collapse: collapse; border: none;">
+                <tr>
+                    <td style="border: none; text-align: left; width: 240px;">
+                        <img src="{{ host }}{% static 'core/img/company-banner.png'%}" width="320px" height="60px"/>
+                    </td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 110px;">RIF: J-30950158-5</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 280px;">{{ user.get_short_name|default:"---" }}</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 60px;">SIGEMPET</td>
+                </tr>
+            </table>
+
+            <h1 style="text-align: center;">REPORTE DE CLIENTES</h1>
+
+            <h1 style="text-align: left; margin-top: 8px; margin-bottom: 1px;">Detalles de cliente - {{ cliente.get_full_name }}</h1>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">RIF/Cédula</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ cliente.cedula }}</td>
+                </tr>
+            </table>
+    
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Nombres</th>
+                    <th style="text-align: center; font-weight: bold;">Apellidos</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ cliente.first_name }} {{ cliente.middle_name }}</td>
+                    <td style="text-align: left;">{{ cliente.last_name }} {{ cliente.last_name_2 }}</td>
+                </tr>
+            </table>
+    
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Número de teléfono</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ cliente.num_tlf|default:"N/A" }}</td>
+                </tr>
+            </table>
+    
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Dirección</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ cliente.direccion|default:"N/A" }}</td>
+                </tr>
+            </table>
+
+            <div> 
+                <pdf:nextpage /> 
+            </div>
+
+        {% endfor %}
+	</body>
+</html>

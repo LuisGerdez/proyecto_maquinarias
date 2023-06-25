@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  django:
+    build: .
+    restart: always
+    ports:
+      - "8099:8000"
+    volumes:
+      - .:/app

@@ -1,0 +1,495 @@
+{% extends "core/layout.html" %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Maquinarias</h1>
+        <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+              <li class="breadcrumb-item active">Maquinarias</li>
+            </ol>
+        </nav>
+    </div>
+
+    <input type="hidden" id="maquinarias_selected_id" value="">
+
+    <div class="card">
+        <div class="card-body">
+        	<h5 class="card-title">Maquinarias</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered display compact nowrap" id="tabla_maquinarias" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Placa</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Año de fabricación</th>
+                            <th>Deshabilitado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar maquinaria Modal-->
+    <div class="modal fade show" id="agregarMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Registrar maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				<form class="row g-3" id="form_maquinaria_agregar">
+    					<div class="col-md-6">
+    						<label class="form-label">Placa</label>
+    						<input type="text" class="form-control" name="placa" id="maquinaria_agregar_placa" required>
+    					</div>
+    					<div class="col-md-6">
+    						<label class="form-label">Marca</label>
+    						<input type="text" class="form-control" name="marca" id="maquinaria_agregar_marca" required>
+    					</div>
+
+    					<div class="col-md-6">
+    						<label class="form-label">Año de fabricación</label>
+    						<input type="number" class="form-control" min="1700" max="2099" step="1" value="2023" name="anio_fabricacion" id="maquinaria_agregar_anio_fabricacion" required>
+    					</div>
+    					<div class="col-md-6">
+    						<label class="form-label">Modelo</label>
+    						<input type="text" class="form-control" name="modelo" id="maquinaria_agregar_modelo" required>
+    					</div>
+
+    					<div class="col-md-12">
+    						<label class="form-label">Descripción</label>
+    						<div class="col-sm-12">
+    						    <textarea class="form-control" name="descripcion" id="maquinaria_agregar_descripcion" rows="3"></textarea>
+    						</div>
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Color</label>
+    						<input type="text" class="form-control" name="color" id="maquinaria_agregar_color">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Tipo</label>
+    						<input type="text" class="form-control" name="tipo" id="maquinaria_agregar_tipo">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Clase</label>
+    						<input type="text" class="form-control" name="clase" id="maquinaria_agregar_clase">
+    					</div>
+						<div class="col-md-3">
+    						<label class="form-label">Número de ejes</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="num_ejes" id="maquinaria_agregar_num_ejes" value="0">
+    							<span class="input-group-text">#</span>
+    						</div>
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Serial N.I.V</label>
+    						<input type="text" class="form-control" name="serial_niv" id="maquinaria_agregar_serial_niv">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de motor</label>
+    						<input type="text" class="form-control" name="serial_motor" id="maquinaria_agregar_serial_motor">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de carrocería</label>
+    						<input type="text" class="form-control" name="serial_carroceria" id="maquinaria_agregar_serial_carroceria">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de chasis</label>
+    						<input type="text" class="form-control" name="serial_chasis" id="maquinaria_agregar_serial_chasis">
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Tara</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="tara" id="maquinaria_agregar_tara" value="0">
+    							<span class="input-group-text">kg</span>
+    						</div>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Capacidad de carga</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="capacidad_carga" id="maquinaria_agregar_capacidad_carga" value="0">
+    							<span class="input-group-text">kg</span>
+    						</div>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Tipo de combustible</label>
+    						<input type="text" class="form-control" name="tipo_combustible" id="maquinaria_agregar_tipo_combustible">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Capacidad de combustible</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="capacidad_combustible" id="maquinaria_agregar_capacidad_combustible" value="0">
+    							<span class="input-group-text">L</span>
+    						</div>
+    					</div>
+
+    					<input type="submit" id="submit_maquinaria_agregar" class="d-none"/>
+    				</form>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<label for="submit_maquinaria_agregar" class="btn btn-success" tabindex="0">
+    					<i class="bi bi-plus-circle"></i> Registrar
+    				</label>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Detalles maquinaria Modal-->
+    <div class="modal fade show" id="detallesMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Detalles de maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				<form class="row g-3">
+    					<div class="col-md-6">
+    						<label class="form-label">Placa</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_placa" readonly>
+    					</div>
+    					<div class="col-md-6">
+    						<label class="form-label">Marca</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_marca" readonly>
+    					</div>
+
+    					<div class="col-md-4">
+    						<label class="form-label">Año de fabricación</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_anio_fabricacion" readonly>
+    					</div>
+    					<div class="col-md-4">
+    						<label class="form-label">Modelo</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_modelo" readonly>
+    					</div>
+    					<div class="col-md-4">
+    						<label class="form-label">Estado</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_estado" readonly>
+    					</div>
+
+    					<div class="col-md-12">
+    						<label class="form-label">Descripción</label>
+    						<div class="col-sm-12">
+    						    <textarea class="form-control" id="maquinaria_detalles_descripcion" rows="3" readonly></textarea>
+    						</div>
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Color</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_color" readonly>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Tipo</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_tipo" readonly>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Clase</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_clase" readonly>
+    					</div>
+						<div class="col-md-3">
+    						<label class="form-label">Número de ejes</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" id="maquinaria_detalles_num_ejes" readonly>
+    							<span class="input-group-text">#</span>
+    						</div>
+    					</div>
+
+
+    					<div class="col-md-3">
+    						<label class="form-label">Serial N.I.V</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_serial_niv" readonly>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de motor</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_serial_motor" readonly>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de carrocería</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_serial_carroceria" readonly>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de chasis</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_serial_chasis" readonly>
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Tara</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" id="maquinaria_detalles_tara" readonly>
+    							<span class="input-group-text">kg</span>
+    						</div>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Capacidad de carga</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" id="maquinaria_detalles_capacidad_carga" readonly>
+    							<span class="input-group-text">kg</span>
+    						</div>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Tipo de combustible</label>
+    						<input type="text" class="form-control" id="maquinaria_detalles_tipo_combustible" readonly>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Capacidad de combustible</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" id="maquinaria_detalles_capacidad_combustible" readonly>
+    							<span class="input-group-text">L</span>
+    						</div>
+    					</div>
+    				</form>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Modificar maquinaria Modal-->
+    <div class="modal fade show" id="modificarMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Modificar maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				<form class="row g-3" id="form_maquinaria_modificar">
+    					<div class="col-md-6">
+    						<label class="form-label">Placa</label>
+    						<input type="text" class="form-control" id="maquinaria_modificar_placa" readonly>
+    					</div>
+    					<div class="col-md-6">
+    						<label class="form-label">Marca</label>
+    						<input type="text" class="form-control" name="marca" id="maquinaria_modificar_marca" required>
+    					</div>
+
+    					<div class="col-md-6">
+    						<label class="form-label">Año de fabricación</label>
+    						<input type="number" class="form-control" min="1700" max="2099" step="1" value="2023" name="anio_fabricacion" id="maquinaria_modificar_anio_fabricacion" required>
+    					</div>
+    					<div class="col-md-6">
+    						<label class="form-label">Modelo</label>
+    						<input type="text" class="form-control" name="modelo" id="maquinaria_modificar_modelo" required>
+    					</div>
+
+    					<div class="col-md-12">
+    						<label class="form-label">Descripción</label>
+    						<div class="col-sm-12">
+    						    <textarea class="form-control" name="descripcion" id="maquinaria_modificar_descripcion" rows="3"></textarea>
+    						</div>
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Color</label>
+    						<input type="text" class="form-control" name="color" id="maquinaria_modificar_color">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Tipo</label>
+    						<input type="text" class="form-control" name="tipo" id="maquinaria_modificar_tipo">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Clase</label>
+    						<input type="text" class="form-control" name="clase" id="maquinaria_modificar_clase">
+    					</div>
+						<div class="col-md-3">
+    						<label class="form-label">Número de ejes</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="num_ejes" id="maquinaria_modificar_num_ejes">
+    							<span class="input-group-text">#</span>
+    						</div>
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Serial N.I.V</label>
+    						<input type="text" class="form-control" name="serial_niv" id="maquinaria_modificar_serial_niv">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de motor</label>
+    						<input type="text" class="form-control" name="serial_motor" id="maquinaria_modificar_serial_motor">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de carrocería</label>
+    						<input type="text" class="form-control" name="serial_carroceria" id="maquinaria_modificar_serial_carroceria">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Serial de chasis</label>
+    						<input type="text" class="form-control" name="serial_chasis" id="maquinaria_modificar_serial_chasis">
+    					</div>
+
+    					<div class="col-md-3">
+    						<label class="form-label">Tara</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="tara" id="maquinaria_modificar_tara" value="0">
+    							<span class="input-group-text">kg</span>
+    						</div>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Capacidad de carga</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="capacidad_carga" id="maquinaria_modificar_capacidad_carga" value="0">
+    							<span class="input-group-text">kg</span>
+    						</div>
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Tipo de combustible</label>
+    						<input type="text" class="form-control" name="tipo_combustible" id="maquinaria_modificar_tipo_combustible">
+    					</div>
+    					<div class="col-md-3">
+    						<label class="form-label">Capacidad de combustible</label>
+    						<div class="input-group mb-3">
+    							<input type="number" class="form-control" name="capacidad_combustible" id="maquinaria_modificar_capacidad_combustible" value="0">
+    							<span class="input-group-text">L</span>
+    						</div>
+    					</div>
+
+    					<input type="submit" id="submit_maquinaria_modificar" class="d-none"/>
+    				</form>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<label for="submit_maquinaria_modificar" class="btn btn-warning" tabindex="0">
+    					<i class="bi bi-pencil"></i> Modificar
+    				</label>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Eliminar maquinaria Modal-->
+    <div class="modal fade show" id="eliminarMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Eliminar maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea eliminar esta maquinarina?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_maquinaria_eliminar">
+    					<i class="bi bi-x-circle"></i> Eliminar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Deshabilitar maquinaria Modal-->
+    <div class="modal fade show" id="deshabilitarMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Deshabilitar maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea deshabilitar esta maquinarina?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_maquinaria_deshabilitar">
+    					<i class="bi bi-x-octagon"></i> Deshabilitar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Habilitar maquinaria Modal-->
+    <div class="modal fade show" id="habilitarMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Habilitar maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea habilitar esta maquinarina?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-success" id="btn_maquinaria_habilitar">
+    					<i class="bi bi-patch-check"></i> Habilitar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Reporte maquinaria Modal-->
+    <div class="modal fade show" id="reporteMaquinariaModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Qué reporte desea generar?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_maquinaria_reporte_all">
+    					<i class="bi bi-bar-chart-line"></i> Todas las maquinarias
+    				</button>
+    				<button type="button" class="btn btn-info" id="btn_maquinaria_reporte_single">
+    					<i class="bi bi-box-arrow-in-down"></i> Maquinaria seleccionada
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Reporte maquinaria all Modal-->
+    <div class="modal fade show" id="reporteMaquinariaAllModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de maquinaria</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea generar un reporte de todas las maquinarias?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_maquinaria_reporte_all_2">
+    					<i class="bi bi-bar-chart-line"></i> Todas las maquinarias
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+{% endblock %}

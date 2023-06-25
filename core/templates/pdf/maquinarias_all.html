@@ -1,0 +1,151 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Reporte de maquinarias</title>
+        <style>
+            @page {
+                size: letter;
+                @frame header_frame {           /* Static Frame */
+                    -pdf-frame-content: header_content;
+                    left: 50pt; width: 512pt; top: 20pt; height: 20pt;
+                }
+                @frame content_frame {          /* Content Frame */
+                    left: 45pt; width: 518pt; top: 32pt; height: 732pt;
+                }
+                @frame footer_frame {           /* Another static Frame */
+                    -pdf-frame-content: footer_content;
+                    left: 50pt; width: 512pt; top: 800pt; height: 20pt;
+                }
+            }
+
+            p {
+                font-size: 12px;
+                text-align: justify;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            table, td, th {
+                text-align: center;
+                padding: 1px;
+                border: 1px solid black;
+                font-size: 12px;
+            }
+            
+            table td, table td * {
+                vertical-align: top;
+            }
+
+            th {
+                background-color: #b3ecff;
+            }
+        </style>
+	</head>
+
+	<body>
+        <div id="header_content">Fecha: {% now "d/m/Y" %}</div>
+
+        {% for maquinaria in maquinarias %}
+            <table style="border-collapse: collapse; border: none;">
+                <tr>
+                    <td style="border: none; text-align: left; width: 240px;">
+                        <img src="{{ host }}{% static 'core/img/company-banner.png'%}" width="320px" height="60px"/>
+                    </td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 110px;">RIF: J-30950158-5</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 280px;">{{ user.get_short_name|default:"---" }}</td>
+                    <td style="border: none; vertical-align: middle; text-align: center; width: 60px;">SIGEMPET</td>
+                </tr>
+            </table>
+
+            <h1 style="text-align: center;">REPORTE DE MAQUINARIAS</h1>
+
+            <h1 style="text-align: left;">Detalles de maquinaria - {{ maquinaria.get_maquinaria_display }}</h1>
+
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Placa</th>
+                    <th style="text-align: center; font-weight: bold;">Marca</th>
+                    <th style="text-align: center; font-weight: bold;">Año de fabricación</th>
+                    <th style="text-align: center; font-weight: bold;">Modelo</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ maquinaria.placa }}</td>
+                    <td style="text-align: left;">{{ maquinaria.marca }}</td>
+                    <td style="text-align: left;">{{ maquinaria.get_anio_fabricacion }}</td>
+                    <td style="text-align: left;">{{ maquinaria.modelo }}</td>
+                </tr>
+            </table>
+            
+            <table border="1">
+                <tr>
+                    <th colspan="2" style="text-align: center; font-weight: bold;">Descripción</th>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: justify;">
+                        {{ maquinaria.get_description_wrapped }}
+                    </td>
+                </tr>
+            </table>
+    
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Color</th>
+                    <th style="text-align: center; font-weight: bold;">Tipo</th>
+                    <th style="text-align: center; font-weight: bold;">Clase</th>
+                    <th style="text-align: center; font-weight: bold;">Num. ejes</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ maquinaria.color|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.tipo|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.clase|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.num_ejes }}</td>
+                </tr>
+            </table>
+    
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Serial N.I.V</th>
+                    <th style="text-align: center; font-weight: bold;">Serial de motor</th>
+                    <th style="text-align: center; font-weight: bold;">Serial de carrocería</th>
+                    <th style="text-align: center; font-weight: bold;">Serial de chasis</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ maquinaria.serial_niv|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.serial_motor|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.serial_carroceria|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.serial_chasis|default:"N/A" }}</td>
+                </tr>
+            </table>
+    
+            <table border="1">
+                <tr>
+                    <th style="text-align: center; font-weight: bold;">Tara</th>
+                    <th style="text-align: center; font-weight: bold;">Capacidad de carga</th>
+                    <th style="text-align: center; font-weight: bold;">Tipo de combustible</th>
+                    <th style="text-align: center; font-weight: bold;">Capacidad de combustible</th>
+                </tr>
+    
+                <tr>
+                    <td style="text-align: left;">{{ maquinaria.tara }} kg</td>
+                    <td style="text-align: left;">{{ maquinaria.capacidad_carga }} kg</td>
+                    <td style="text-align: left;">{{ maquinaria.tipo_combustible|default:"N/A" }}</td>
+                    <td style="text-align: left;">{{ maquinaria.capacidad_combustible }} L</td>
+                </tr>
+            </table>
+
+            <div> 
+                <pdf:nextpage /> 
+            </div>
+
+        {% endfor %}
+	</body>
+</html>

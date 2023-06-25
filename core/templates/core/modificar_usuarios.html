@@ -1,0 +1,125 @@
+{% extends "core/layout.html" %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Modificar usuario</h1>
+        <nav>
+            <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+            <li class="breadcrumb-item active">Modificar usuario</li>
+            </ol>
+        </nav>
+    </div>
+
+    {% if msg %}
+        <div class="alert {{ alert_type }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Modificar usuario</h5>
+
+            {% if query == False %}
+                <form action="{% url 'modificar_usuarios' %}" method="get" id="form_search">
+                    
+                    <center><h6 class="card-title">Buscar usuario a modificar</h6></center>
+
+                    <div class="col-12">
+                        <label class="form-label">Nombre de usuario</label>
+                        <input type="text" class="form-control" name="username" list="dlist" autocomplete="off" required>
+                        <datalist id="dlist">
+                            {% for user_d in users %}
+                                <option value="{{ user_d.username }}">{{ user_d.username }}</option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+
+                    <br>
+
+                    <input class="btn btn-primary" type="submit" value="Buscar usuario">
+                </form>
+            {% else %}
+                <form action="{% url 'modificar_usuarios' %}" method="post" id="form">
+                    {% csrf_token %}
+                    <input type="hidden" name="username" value="{{ user_modificar.username }}">
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Nombre de usuario</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="{{ user_modificar.username }}" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Cédula</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="{{ user_modificar.cedula }}" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Nombres</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="nombres" value="{{ user_modificar.get_names }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Apellidos</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="apellidos" value="{{ user_modificar.get_last_names }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Correo electrónico</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" name="email" value="{{ user_modificar.email }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Número de teléfono</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="num_tlf" value="{{ user_modificar.num_tlf }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Contraseña</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" name="password">
+                        </div>
+                        <small id="passwordHelp" class="form-text text-muted">Ingresar si se quiere establecer nueva contraseña</small>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Confirmar contraseña</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" name="confirmation">
+                        </div>
+                    </div>
+
+                    <!-- <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Tipo de usuario</label>
+                        <div class="col-sm-10">
+                            <select class="form-select" name="tipo_usuario" id="tipo_usuario" required>
+                                <option value="" selected>Seleccionar tipo de usuario</option>
+                                <option value="1" {% if user_modificar.is_superuser == False %} selected {% endif %}>Usuario</option>
+                                <option value="2" {% if user_modificar.is_superuser == True %} selected {% endif %}>Administrador</option>
+                            </select>
+                        </div>
+                    </div> -->
+
+                    <input type="hidden" name="tipo_usuario" id="tipo_usuario" {% if user_modificar.is_superuser == False %} value="1" {% else %} value="2" {% endif %}>
+
+                    <input class="btn btn-primary" type="submit" value="Modificar usuario" name="modificar_usuario">
+                    <input class="btn btn-danger" type="submit" value="Eliminar usuario" name="eliminar_usuario">
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

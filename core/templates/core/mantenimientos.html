@@ -1,0 +1,766 @@
+{% extends "core/layout.html" %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Mantenimientos</h1>
+        <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+              <li class="breadcrumb-item active">Mantenimientos</li>
+            </ol>
+        </nav>
+    </div>
+
+    <input type="hidden" id="mantenimientos_selected_id" value="">
+
+    <div class="card">
+        <div class="card-body">
+        	<h5 class="card-title">Mantenimientos</h5>
+
+            <div class="btn-group btn-group-sm mb-3" role="group">
+                <button type="button" class="btn btn-warning" id="mantenimientos_btn_filtro_sin_culminar">Sin culminar</button>
+                <button type="button" class="btn btn-success" id="mantenimientos_btn_filtro_ejecutados">Ejecutados</button>
+                <button type="button" class="btn btn-danger" id="mantenimientos_btn_filtro_cancelados">Cancelados</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered display compact nowrap" id="tabla_mantenimientos" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Maquinaria</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Cancelado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar mantenimiento Modal Step 1 -->
+    <div class="modal fade show" id="agregarMantenimientoModal_Step_1" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Registrar mantenimiento - Información (1/4)</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Tipo de mantenimiento</label>
+                            <select class="form-select" id="mantenimiento_agregar_tipo">
+                                <option value="" selected="">Seleccionar tipo de mantenimiento</option>
+                                <option value="1">Correctivo</option>
+                                <option value="2">Preventivo</option>
+                            </select>
+                        </div>  
+
+                        <div class="col-md-12">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control input-agregar" id="mantenimiento_agregar_fecha">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Actividad</label>
+                            <input type="text" class="form-control input-agregar" id="mantenimiento_agregar_actividad">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control input-agregar" id="mantenimiento_agregar_descripcion" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Herramientas</label>
+                            <textarea class="form-control input-agregar" id="mantenimiento_agregar_herramientas" rows="3"></textarea>
+                        </div>
+                    </div>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+                    <button type="button" class="btn btn-success" id="btn_mantenimiento_agregar_step_2">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Agregar mantenimiento Modal Step 2 -->
+    <div class="modal fade show" id="agregarMantenimientoModal_Step_2" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar mantenimiento - Maquinaria (2/4)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12" style="margin-bottom: 350px">
+                            <label class="form-label">Maquinaria</label>
+                            <select class="form-control" id="mantenimiento_agregar_maquinaria" data-live-search="true"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_agregar_step_1_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-success" id="btn_mantenimiento_agregar_step_3">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar mantenimiento Modal Step 3 -->
+    <div class="modal fade show" id="agregarMantenimientoModal_Step_3" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar mantenimiento - Personal (3/4)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Supervisor de mantenimiento</label>
+                            <select class="form-control" id="mantenimiento_agregar_supervisor" data-live-search="true">
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Mecánicos</label>
+                            <select class="form-control" id="mantenimiento_agregar_mecanicos" data-none-selected-text="Seleccionar mecánicos" data-live-search="true" multiple>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Ayudantes</label>
+                            <select class="form-control" id="mantenimiento_agregar_ayudantes" data-none-selected-text="Seleccionar ayudantes" data-live-search="true" multiple>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_agregar_step_2_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-success" id="btn_mantenimiento_agregar_step_4">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar mantenimiento Modal Step 4 -->
+    <div class="modal fade show" id="agregarMantenimientoModal_Step_4" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar mantenimiento - Repuestos y gastos (4/4)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-12" style="margin-top: 16px;">
+                            <div class="mb-1">
+                                <label class="form-label">Repuestos y gastos</label>
+                                <button type="button" class="btn btn-success btn-sm" style="float: right;" onclick="gastos_add_table_row('mantenimiento_agregar_gastos');">
+                                    <i class="bi bi-plus-circle"></i> Agregar repuesto o gasto
+                                </button>
+                            </div>
+
+                            <div class="overflow-auto" style="height: 200px; max-height: 200px;">
+                                <table class="table table-bordered" id="mantenimiento_agregar_gastos">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Descripción</th>
+                                            <th style="width: 20%;">Monto $</th>
+                                            <th style="width: 60px;">Acción</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_agregar_step_3_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-success" id="btn_mantenimiento_agregar">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles mantenimiento Modal-->
+    <div class="modal fade show" id="detallesMantenimientoModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Detalles de mantenimiento</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <div class="accordion" id="accordionDetallesMantenimiento">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed bg-primary text-light border border-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    Información de maquinaria
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionDetallesMantenimiento" style="">
+                                <div class="accordion-body">
+                                    <form class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Placa</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_placa" readonly>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Marca</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_marca" readonly>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Año de fabricación</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_anio_fabricacion" readonly>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Modelo</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_modelo" readonly>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Estado</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_estado" readonly>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">Descripción</label>
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control" id="maquinaria_detalles_descripcion" rows="3" readonly></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Color</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_color" readonly>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Tipo</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_tipo" readonly>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Clase</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_clase" readonly>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Serial N.I.V</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_serial_niv" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Serial de motor</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_serial_motor" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Serial de carrocería</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_serial_carroceria" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Serial de chasis</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_serial_chasis" readonly>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Tara</label>
+                                            <div class="input-group mb-3">
+                                                <input type="number" class="form-control" id="maquinaria_detalles_tara" readonly>
+                                                <span class="input-group-text">kg</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Capacidad de carga</label>
+                                            <div class="input-group mb-3">
+                                                <input type="number" class="form-control" id="maquinaria_detalles_capacidad_carga" readonly>
+                                                <span class="input-group-text">kg</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Tipo de combustible</label>
+                                            <input type="text" class="form-control" id="maquinaria_detalles_tipo_combustible" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Capacidad de combustible</label>
+                                            <div class="input-group mb-3">
+                                                <input type="number" class="form-control" id="maquinaria_detalles_capacidad_combustible" readonly>
+                                                <span class="input-group-text">L</span>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed bg-primary text-light border border-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Información de mantenimiento
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionDetallesMantenimiento">
+                                <div class="accordion-body">
+                                    <form class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Tipo de mantenimiento</label>
+                                            <input type="text" class="form-control" id="mantenimiento_detalles_tipo" readonly>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label">Fecha</label>
+                                            <input type="text" class="form-control" id="mantenimiento_detalles_fecha" readonly>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">Actividad</label>
+                                            <input type="text" class="form-control" id="mantenimiento_detalles_actividad" readonly>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">Descripción</label>
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control" id="mantenimiento_detalles_descripcion" rows="3" readonly></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label">Herramientas</label>
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control" id="mantenimiento_detalles_herramientas" rows="3" readonly></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Repuestos y gastos</label>
+                                            <ol class="list-group list-group-numbered" id="mantenimiento_detalles_gastos"></ol>
+                                        </div>
+
+                                        <div class="col-md-12" id="mantenimiento_culminado_nota_container">
+                                            <label class="form-label">Nota de culminación</label>
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control" id="mantenimiento_detalles_culminado_nota" rows="3" readonly></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed bg-primary text-light border border-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Personal de mantenimiento
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionDetallesMantenimiento">
+                                <div class="accordion-body">
+                                    <form class="row g-3">
+                                        <div class="col-md-12">
+                                            <ol class="list-group list-group-numbered" id="mantenimiento_detalles_trabajadores">
+                                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <div class="ms-2 me-auto">
+                                                        <div class="fw-bold">Subheading</div>
+                                                        Cras justo odio
+                                                    </div>
+                                                </li>
+
+                                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <div class="ms-2 me-auto">
+                                                        <div class="fw-bold">Subheading</div>
+                                                        Cras justo odio
+                                                    </div>
+                                                </li>
+
+                                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <div class="ms-2 me-auto">
+                                                        <div class="fw-bold">Subheading</div>
+                                                        Cras justo odio
+                                                    </div>
+                                                </li>
+                                            </ol>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Modificar mantenimiento Modal Step 1 -->
+    <div class="modal fade show" id="modificarMantenimientoModal_Step_1" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar mantenimiento - Información (1/3)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" class="input-modificar" id="mantenimiento_modificar_maquinaria_id">
+                    <input type="hidden" class="input-modificar" id="mantenimiento_modificar_supervisor_id">
+                    <input type="hidden" class="input-modificar" id="mantenimiento_modificar_mecanicos_id">
+                    <input type="hidden" class="input-modificar" id="mantenimiento_modificar_ayudantes_id">
+                    <input type="hidden" class="input-modificar" id="mantenimiento_modificar_gastos_string">
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Tipo de mantenimiento</label>
+                            <select class="form-select" id="mantenimiento_modificar_tipo">
+                                <option value="" selected="">Seleccionar tipo de mantenimiento</option>
+                                <option value="1">Correctivo</option>
+                                <option value="2">Preventivo</option>
+                            </select>
+                        </div>  
+
+                        <div class="col-md-12">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control input-modificar" id="mantenimiento_modificar_fecha">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Actividad</label>
+                            <input type="text" class="form-control input-modificar" id="mantenimiento_modificar_actividad">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control input-modificar" id="mantenimiento_modificar_descripcion" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Herramientas</label>
+                            <textarea class="form-control input-modificar" id="mantenimiento_modificar_herramientas" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn_mantenimiento_modificar_step_2">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar mantenimiento Modal Step 2 -->
+    <div class="modal fade show" id="modificarMantenimientoModal_Step_2" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar mantenimiento - Personal (2/3)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Supervisor de mantenimiento</label>
+                            <select class="form-control" id="mantenimiento_modificar_supervisor" data-live-search="true">
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Mecánicos</label>
+                            <select class="form-control" id="mantenimiento_modificar_mecanicos" data-none-selected-text="Seleccionar mecánicos" data-live-search="true" multiple>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Ayudantes</label>
+                            <select class="form-control" id="mantenimiento_modificar_ayudantes" data-none-selected-text="Seleccionar ayudantes" data-live-search="true" multiple>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_modificar_step_1_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn_mantenimiento_modificar_step_3">
+                        <i class="bi bi-arrow-right-circle"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar mantenimiento Modal Step 3 -->
+    <div class="modal fade show" id="modificarMantenimientoModal_Step_3" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar mantenimiento - Repuestos y gastos (3/3)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12" style="margin-top: 16px;">
+                            <div class="mb-1">
+                                <label class="form-label">Repuestos y gastos</label>
+                                <button type="button" class="btn btn-success btn-sm" style="float: right;" onclick="gastos_add_table_row('mantenimiento_modificar_gastos');">
+                                    <i class="bi bi-plus-circle"></i> Agregar repuesto o gasto
+                                </button>
+                            </div>
+
+                            <div class="overflow-auto" style="height: 200px; max-height: 200px;">
+                                <table class="table table-bordered" id="mantenimiento_modificar_gastos">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Descripción</th>
+                                            <th style="width: 20%;">Monto $</th>
+                                            <th style="width: 60px;">Acción</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_modificar_step_2_back">
+                        <i class="bi bi-arrow-left-circle"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn_mantenimiento_modificar">
+                        <i class="bi bi-pencil"></i> Modificar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Establecer mantenimiento fecha de ejecucion Modal-->
+    <div class="modal fade show" id="establecerMantenimientoEjecucionModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Establecer fecha de ejecución de mantenimiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" id="form_mantenimiento_establecer_ejecucion">
+                        <input type="hidden" name="mantenimiento_id" id="mantenimiento_establecer_ejecucion_id">
+                        <div class="col-md-12">
+                            <label class="form-label">Fecha de ejecución</label>
+                            <input type="date" class="form-control" name="fecha_ejecucion" id="mantenimiento_establecer_ejecucion" required>
+                        </div>
+
+                        <input type="submit" id="submit_mantenimiento_establecer_ejecucion" class="d-none"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <label for="submit_mantenimiento_establecer_ejecucion" class="btn btn-info" tabindex="0">
+                        <i class="bi bi-calendar-check"></i> Establecer fecha
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Establecer mantenimiento culminado Modal-->
+    <div class="modal fade show" id="establecerMantenimientoCulminadoModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Establecer mantenimiento como culminado</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <input type="hidden" id="mantenimiento_establecer_culminado_id">
+    				¿Desea establecer este mantenimiento como culminado?
+
+                    <div class="col-md-12 mt-3">
+                        <textarea class="form-control" placeholder="Nota de culminación" id="mantenimiento_establecer_culminado_nota" rows="3"></textarea>
+                    </div>
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-warning" id="btn_mantenimiento_establecer_culminado">
+    					<i class="bi bi-bookmark-check-fill"></i>  Establecer como culminado
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Eliminar mantenimiento Modal-->
+    <div class="modal fade show" id="eliminarMantenimientoModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Eliminar mantenimiento</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea eliminar este mantenimiento?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_mantenimiento_eliminar">
+    					<i class="bi bi-x-circle"></i> Eliminar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Cancelar mantenimiento Modal-->
+    <div class="modal fade show" id="cancelarMantenimientoModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Cancelar proyecto</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+                    <input type="hidden" id="mantenimiento_cancelar_id">
+    				¿Desea cancelar este mantenimiento?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+    				<button type="button" class="btn btn-danger" id="btn_mantenimiento_cancelar">
+    					<i class="bi bi-clipboard-x"></i> Cancelar
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <!-- Reporte mantenimiento Modal-->
+    <div class="modal fade show" id="reporteMantenimientoModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de mantenimiento</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Qué reporte desea generar?
+    			</div>
+    			<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="btn_mantenimiento_reporte_all">
+    					<i class="bi bi-bar-chart-line"></i> Todos los mantenimientos
+    				</button>
+                    <button type="button" class="btn btn-success" id="btn_mantenimiento_reporte_culminados">
+    					<i class="bi bi-check"></i> Ejecutados
+    				</button>
+                    <button type="button" class="btn btn-warning" id="btn_mantenimiento_reporte_sinculminar">
+    					<i class="bi bi-hourglass-bottom"></i> Sin culminar
+    				</button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_reporte_cancelados">
+    					<i class="bi bi-clipboard-x"></i> Cancelados
+    				</button>
+
+                    <button type="button" class="btn btn-info" id="btn_mantenimiento_reporte_correctivos">
+    					<i class="bi bi-hammer"></i> Correctivos
+    				</button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_reporte_preventivos">
+    					<i class="bi bi-bandaid"></i> Preventivos
+    				</button>
+    				<button type="button" class="btn btn-info" id="btn_mantenimiento_reporte_single">
+    					<i class="bi bi-box-arrow-in-down"></i> Mantenimiento seleccionado
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Reporte mantenimiento all Modal-->
+    <div class="modal fade show" id="reporteMantenimientoAllModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de mantenimiento</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea generar un reporte de todos los mantenimientos?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_mantenimiento_reporte_all_2">
+    					<i class="bi bi-bar-chart-line"></i> Todos los mantenimientos
+    				</button>
+                    <button type="button" class="btn btn-success" id="btn_mantenimiento_reporte_culminados_2">
+    					<i class="bi bi-check"></i> Ejecutados
+    				</button>
+                    <button type="button" class="btn btn-warning" id="btn_mantenimiento_reporte_sinculminar_2">
+    					<i class="bi bi-hourglass-bottom"></i> Sin culminar
+    				</button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_reporte_cancelados_2">
+    					<i class="bi bi-clipboard-x"></i> Cancelados
+    				</button>
+
+                    <button type="button" class="btn btn-info" id="btn_mantenimiento_reporte_correctivos_2">
+    					<i class="bi bi-hammer"></i> Correctivos
+    				</button>
+                    <button type="button" class="btn btn-danger" id="btn_mantenimiento_reporte_preventivos_2">
+    					<i class="bi bi-bandaid"></i> Preventivos
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+{% endblock %}

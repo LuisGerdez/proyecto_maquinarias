@@ -1,0 +1,274 @@
+{% extends "core/layout.html" %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Clientes</h1>
+        <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+              <li class="breadcrumb-item active">Clientes</li>
+            </ol>
+        </nav>
+    </div>
+
+    <input type="hidden" id="clientes_selected_id" value="">
+
+    <div class="card">
+        <div class="card-body">
+        	<h5 class="card-title">Clientes</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered display compact nowrap" id="tabla_clientes" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>RIF/Cédula</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar cliente Modal-->
+    <div class="modal fade show" id="agregarClienteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" id="form_cliente_agregar">
+                        <div class="col-md-6">
+                            <label class="form-label">RIF/Cédula de identidad</label>
+                            <input type="text" class="form-control" name="cedula" id="cliente_agregar_cedula" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Número de teléfono</label>
+                            <input type="number" class="form-control" name="num_tlf" id="cliente_agregar_num_tlf">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer nombre</label>
+                            <input type="text" class="form-control" name="first_name" id="cliente_agregar_primer_nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo nombre</label>
+                            <input type="text" class="form-control" name="middle_name" id="cliente_agregar_segundo_nombre">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer apellido</label>
+                            <input type="text" class="form-control" name="last_name" id="cliente_agregar_primer_apellido" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo apellido</label>
+                            <input type="text" class="form-control" name="last_name_2" id="cliente_agregar_segundo_apellido">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea class="form-control" name="direccion" id="cliente_agregar_direccion" rows="3"></textarea>
+                        </div>
+
+                        <input type="submit" id="submit_cliente_agregar" class="d-none"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <label for="submit_cliente_agregar" class="btn btn-success" tabindex="0">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles cliente Modal-->
+    <div class="modal fade show" id="detallesClienteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">RIF/Cédula de identidad</label>
+                            <input type="text" class="form-control" id="cliente_detalles_cedula" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Número de teléfono</label>
+                            <input type="text" class="form-control" id="cliente_detalles_num_tlf" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer nombre</label>
+                            <input type="text" class="form-control" id="cliente_detalles_primer_nombre" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo nombre</label>
+                            <input type="text" class="form-control" id="cliente_detalles_segundo_nombre" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer apellido</label>
+                            <input type="text" class="form-control" id="cliente_detalles_primer_apellido" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo apellido</label>
+                            <input type="text" class="form-control" id="cliente_detalles_segundo_apellido" readonly>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea class="form-control" id="cliente_detalles_direccion" rows="3" readonly></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modificar cliente Modal-->
+    <div class="modal fade show" id="modificarClienteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modificar cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" id="form_cliente_modificar">
+                        <div class="col-md-6">
+                            <label class="form-label">RIF/Cédula de identidad</label>
+                            <input type="text" class="form-control" id="cliente_modificar_cedula" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Número de teléfono</label>
+                            <input type="number" class="form-control" name="num_tlf" id="cliente_modificar_num_tlf">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer nombre</label>
+                            <input type="text" class="form-control" name="first_name" id="cliente_modificar_primer_nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo nombre</label>
+                            <input type="text" class="form-control" name="middle_name" id="cliente_modificar_segundo_nombre">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Primer apellido</label>
+                            <input type="text" class="form-control" name="last_name" id="cliente_modificar_primer_apellido" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo apellido</label>
+                            <input type="text" class="form-control" name="last_name_2" id="cliente_modificar_segundo_apellido">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea class="form-control" name="direccion" id="cliente_modificar_direccion" rows="3"></textarea>
+                        </div>
+
+                        <input type="submit" id="submit_cliente_modificar" class="d-none"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <label for="submit_cliente_modificar" class="btn btn-warning" tabindex="0">
+                        <i class="bi bi-pencil"></i> Modificar
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eliminar cliente Modal-->
+    <div class="modal fade show" id="eliminarClienteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea eliminar este cliente?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn_cliente_eliminar">
+                        <i class="bi bi-x-circle"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporte cliente Modal-->
+    <div class="modal fade show" id="reporteClienteModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de cliente</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Qué reporte desea generar?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_cliente_reporte_all">
+    					<i class="bi bi-bar-chart-line"></i> Todos los clientes
+    				</button>
+    				<button type="button" class="btn btn-info" id="btn_cliente_reporte_single">
+    					<i class="bi bi-box-arrow-in-down"></i> Cliente seleccionado
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+	<!-- Reporte trabajador all Modal-->
+    <div class="modal fade show" id="reporteClienteAllModal" tabindex="-1" data-bs-backdrop="static">
+    	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<h5 class="modal-title">Reporte de cliente</h5>
+    				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    			</div>
+    			<div class="modal-body">
+    				¿Desea generar un reporte de todos los clientes?
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    					<i class="bi bi-x-circle"></i> Cerrar
+    				</button>
+					<button type="button" class="btn btn-primary" id="btn_cliente_reporte_all_2">
+    					<i class="bi bi-bar-chart-line"></i> Todos los clientes
+    				</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+{% endblock %}
